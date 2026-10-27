@@ -61,6 +61,7 @@ alias lz='lazygit'
 alias update='sudo pacman -Syu && yay -Syu'
 alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 alias xcp='xclip -selection clipboard'
+alias check_same='_check_same'
 
 alias mkcd='function _mkcd(){ mkdir -p "$1"; cd "$1"; }; _mkcd'
 
@@ -71,6 +72,13 @@ alias agy-ide="antigravity-ide"
 alias pgadmin='source pgadmin4/bin/activate && pgadmin4'
 
 # functions
+_check_same() {
+  local target_dir1="${1:-.}"
+  local target_dir2="${2:-.}"
+
+  sha256sum "$target_dir1" "$target_dir2" | awk '{print $1}' | uniq | wc -l
+}
+
 _lt () {
   local target_dir="${1:-.}"
   local level="${2:-1}"
@@ -81,17 +89,17 @@ _lt () {
 }
 
 # Script to cloud login
-SkyShreesetu() {
+BackGateGo() {
     if [[ $1 == upload ]]; then
         # the first argument is source (the path of a file or folder from local)
-        scp -r "$2" "SkyShreesetu:${3:-$HOME/}"
+        scp -r "$2" "BackGateGo:${3:-$HOME/}"
 
     elif [[ $1 == download ]]; then
         # the first argument is source (the path of a file or folder from server)
-        scp -r "SkyShreesetu:$2" "${3:-$HOME/Downloads/}"
+        scp -r "BackGateGo:$2" "${3:-$HOME/Downloads/}"
 
     else
-        ssh SkyShreesetu
+        ssh BackGateGo
     fi
 }
 
