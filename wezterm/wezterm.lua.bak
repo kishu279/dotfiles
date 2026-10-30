@@ -1,0 +1,104 @@
+-- Pull in the wezterm API
+local wezterm = require("wezterm")
+local act = wezterm.action
+-- This will hold the configuration.
+local config = wezterm.config_builder()
+
+-- This is where you actually apply your config choices.
+
+-- For example, changing the initial geometry for new windows:
+config.initial_cols = 120
+config.initial_rows = 30
+
+-- or, changing the font size and color scheme.
+config.font_size = 15
+config.color_scheme = "Gruvbox Dark (Gogh)"
+-- config.color_scheme = 'Dracula' -- Clean, dark developer theme
+config.enable_wayland = false
+config.window_background_opacity = 0.7
+config.macos_window_background_blur = 20
+
+config.font = wezterm.font_with_fallback({
+	"FiraCode Nerd Font",
+})
+
+-- 🗂️ Tab Appearance & Spacing Layout
+config.tab_bar_at_bottom = true
+config.use_fancy_tab_bar = false
+config.tab_max_width = 25       -- Caps the tab width
+config.window_decorations = "TITLE | RESIZE"
+
+config.window_padding = {        -- Adds tight padding inside the window edges
+  left = 2, right = 2, top = 0, bottom = 0
+}
+
+config.colors = {
+  tab_bar = {
+    background = '#1e1e2e',
+    active_tab = { bg_color = '#89b4fa', fg_color = '#11111b', intensity = 'Bold' },
+    inactive_tab = { bg_color = '#313244', fg_color = '#cdd6f4' },
+  },
+}
+
+-- Format tab title with custom text spacing padding
+wezterm.on('format-tab-title', function(tab, tabs, panes, config, hover, max_width)
+  local title = tab.active_pane.title
+  return {
+    { Text = '  ' }, -- Adjust spacing here
+    { Text = tostring(tab.tab_index + 1) .. ': ' .. title },
+    { Text = '  ' }, -- Adjust spacing here
+  }
+end)
+
+-- ⌨️ Tmux-Style Keys (Ctrl+b)
+config.leader = { key = 'b', mods = 'CTRL', timeout_milliseconds = 1000 }
+config.keys = {
+    {
+        key = 'j',
+        mods = 'ALT',
+        action = wezterm.action.SendString('\x1bj'),
+    },
+    {
+        key = 'k',
+        mods = 'ALT',
+        action = wezterm.action.SendString('\x1bk'),
+    },
+  { key = 'b', mods = 'LEADER|CTRL', action = act.SendKey { key = 'b', mods = 'CTRL' } },
+  { key = '-', mods = 'LEADER', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
+  { key = '=', mods = 'LEADER', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+  { key = 'x', mods = 'LEADER', action = act.CloseCurrentPane { confirm = true } },
+
+  -- 🏠 Ctrl + b then 'c' -> Spawns new tab in Linux Home (~/)
+  {
+    key = 'c',
+    mods = 'LEADER',
+    action = act.SpawnCommandInNewTab {
+      domain = { DomainName = 'WSL:Ubuntu' },
+      cwd = '~',
+    },
+  },
+
+  -- Tab Navigation (Leader + Arrows or p)
+  { key = 'RightArrow', mods = 'LEADER', action = act.ActivateTabRelative(1) },
+  { key = 'LeftArrow', mods = 'LEADER', action = act.ActivateTabRelative(-1) },
+  { key = 'n', mods = 'LEADER', action = act.ActivateTabRelative(1) },
+  { key = 'p', mods = 'LEADER', action = act.ActivateTabRelative(-1) },
+
+  -- Vim keys for switching panes
+  { key = 'h', mods = 'LEADER', action = act.ActivatePaneDirection 'Left' },
+  { key = 'j', mods = 'LEADER', action = act.ActivatePaneDirection 'Down' },
+  { key = 'k', mods = 'LEADER', action = act.ActivatePaneDirection 'Up' },
+  { key = 'l', mods = 'LEADER', action = act.ActivatePaneDirection 'Right' },
+}
+
+
+-- Default terminal POWERSHELL
+config.default_prog = { "pwsh.exe" }
+-- config.default_prog = { "pwsh.exe", '-c', 'tmux attach || tmux' }
+
+
+-- Change 'WSL:Ubuntu' to your preferred installed distribution (e.g., WSL:Debian)
+config.default_domain = 'WSL:Ubuntu'
+
+-- Finally, return the configuration to wezterm:
+return config
