@@ -30,8 +30,8 @@ save_to_clipboard = true
 
 [terminal]
 
-[terminal.shell]
-program = "/usr/bin/zellij"
+# [terminal.shell]
+# program = "/usr/bin/zellij"
 
 
 [[keyboard.bindings]]
